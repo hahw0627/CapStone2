@@ -4,47 +4,42 @@ public class Enemy : MonoBehaviour
 {
     public int speed;
     public int health;
-    public Sprite[] sprites;
+    public Material[] materials; // materials[0]: 기본, materials[1]: 피격 시
 
-
-    SpriteRenderer spriteRenderer;
-
+    private Renderer objRenderer;
 
     void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-
+        objRenderer = GetComponent<Renderer>();
     }
 
     void OnHit(int dmg)
     {
         health -= dmg;
-        spriteRenderer.sprite = sprites[1];
-        Invoke("ReturnSprite", 0.1f);
+        objRenderer.material = materials[1]; // 피격 시 머티리얼 교체
+        Invoke("ReturnMaterial", 0.1f);
         if (health <= 0)
         {
             Destroy(gameObject);
-
         }
     }
 
-    void ReturnSprite()
+    void ReturnMaterial()
     {
-        spriteRenderer.sprite = sprites[0];
-
+        objRenderer.material = materials[0]; // 원래 머티리얼로 복귀
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.tag == "BorderBullet")
+        if (other.gameObject.CompareTag("BorderBullet"))
         {
             Destroy(gameObject);
         }
-        else if (collision.gameObject.tag == "PlayerBullet")
+        else if (other.gameObject.CompareTag("PlayerBullet"))
         {
-            Bullet bullet = collision.gameObject.GetComponent<Bullet>();
+            Bullet bullet = other.gameObject.GetComponent<Bullet>();
             OnHit(bullet.dmg);
-            Destroy(collision.gameObject);
+            Destroy(other.gameObject);
         }
     }
 }
