@@ -4,8 +4,10 @@ public class Enemy : MonoBehaviour
 {
     public int speed;
     public int health;
+    public int enemyScore;
     public Material[] materials; // materials[0]: 기본, materials[1]: 피격 시
 
+    public GameObject player;
     private Renderer objRenderer;
 
     void Awake()
@@ -20,6 +22,12 @@ public class Enemy : MonoBehaviour
         Invoke("ReturnMaterial", 0.1f);
         if (health <= 0)
         {
+            GameManager gameManager = Object.FindFirstObjectByType<GameManager>();
+            if (gameManager != null)
+            {
+                gameManager.AddScore(enemyScore);
+            }
+
             Destroy(gameObject);
         }
     }

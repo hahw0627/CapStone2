@@ -8,6 +8,9 @@ public class Player : MonoBehaviour
     public bool isTouchRight;
     public bool isTouchLeft;
 
+    public int life;
+    public int score;
+
     public float maxShotDelay;
     public float curShotDelay;
 
@@ -17,6 +20,12 @@ public class Player : MonoBehaviour
 
     public float bulletForce = 10f;
     public float detectionRadius = 15f;
+    public bool isHit;
+
+    void Start()
+    {
+        score = 0;
+    }
 
     void Update()
     {
@@ -83,8 +92,24 @@ public class Player : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Enemy"))
         {
-            gameManager.RespawnPlayer();
+            if (isHit)
+            {
+                return;
+            }
+            isHit = true;
+            life--;
+            gameManager.UpdateLifeIcon(life);
+
+            if (life == 0)
+            {
+                gameManager.GameOver();
+            }
+            else
+            {
+                gameManager.RespawnPlayer();
+            }
             gameObject.SetActive(false);
+            Destroy(collision.gameObject);
         }
     }
 
