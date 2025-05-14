@@ -22,6 +22,15 @@ public class Player : MonoBehaviour
     public float detectionRadius = 15f;
     public bool isHit;
 
+    public float dashDistance = 5f;
+    public float doubleClickTime = 0.3f;
+
+    private float lastClickTimeLeft = -1f;
+    private float lastClickTimeRight = -1f;
+    private bool isDashing = false;
+    private int leftTouchCount = 0;
+
+
     void Start()
     {
         score = 0;
@@ -32,6 +41,7 @@ public class Player : MonoBehaviour
         Move();
         AutoFire();
         Reload();
+        DetectDashInput();
     }
 
     void Move()
@@ -56,19 +66,75 @@ public class Player : MonoBehaviour
         transform.position += nextPos;
     }
 
+    void DetectDashInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 inputPos = Input.mousePosition;
+            float halfScreen = Screen.width / 2f;
+
+            if (inputPos.x < halfScreen)
+            {
+                // 왼쪽 클릭
+                if (Time.time - lastClickTimeLeft < doubleClickTime)
+                {
+                    Dash(Vector3.left);
+                    lastClickTimeLeft = -1f; // 리셋
+                }
+                else
+                {
+                    lastClickTimeLeft = Time.time;
+                }
+            }
+            else
+            {
+                // 오른쪽 클릭
+                if (Time.time - lastClickTimeRight < doubleClickTime)
+                {
+                    Dash(Vector3.right);
+                    lastClickTimeRight = -1f;
+                }
+                else
+                {
+                    lastClickTimeRight = Time.time;
+                }
+            }
+        }
+    }
+
+    void Dash(Vector3 direction)
+    {
+        if (isDashing) return;
+
+        // 대시 거리 + 여유 거리만큼 Ray를 쏴서 벽이 있는지 확인
+        float dashCheckDistance = dashDistance + 0.1f;
+        Ray ray = new Ray(transform.position, direction);
+
+        // "Border" 레이어만 검사
+        if (Physics.Raycast(ray, dashCheckDistance, LayerMask.GetMask("Border")))
+        {
+            // 벽이 있으므로 대시 취소
+            return;
+        }
+
+        // 문제 없으면 대시
+        isDashing = true;
+        transform.position += direction * dashDistance;
+        Invoke(nameof(ResetDash), 0.2f);
+    }
+
+    void ResetDash()
+    {
+        isDashing = false;
+    }
+
     void AutoFire()
     {
         if (curShotDelay < maxShotDelay) return;
 
-        Collider[] enemyColliders = Physics.OverlapSphere(transform.position, detectionRadius, LayerMask.GetMask("Enemy"));
-        if (enemyColliders.Length == 0) return;
-
-        Vector3 enemyPos = enemyColliders[0].transform.position;
-        Vector3 direction = (enemyPos - transform.position).normalized;
-
         GameObject bullet = Instantiate(bulletObj, transform.position, Quaternion.identity);
         Rigidbody rigid = bullet.GetComponent<Rigidbody>();
-        rigid.AddForce(direction * bulletForce, ForceMode.Impulse);
+        rigid.AddForce(transform.forward * bulletForce, ForceMode.Impulse);
 
         curShotDelay = 0;
     }
@@ -84,10 +150,20 @@ public class Player : MonoBehaviour
         {
             switch (collision.gameObject.name)
             {
-                case "Top": isTouchTop = true; break;
-                case "Bottom": isTouchBottom = true; break;
-                case "Right": isTouchRight = true; break;
-                case "Left": isTouchLeft = true; break;
+                case "Top": 
+                    isTouchTop = true; 
+                    break;
+                case "Bottom": 
+                    isTouchBottom = true; 
+                    break;
+                case "Right":
+                    leftTouchCount++;
+                    isTouchRight = true; 
+                    break;
+                case "Left": 
+                    leftTouchCount++; 
+                    isTouchLeft = true; 
+                    break;
             }
         }
         else if (collision.gameObject.CompareTag("Enemy"))
@@ -121,8 +197,21 @@ public class Player : MonoBehaviour
             {
                 case "Top": isTouchTop = false; break;
                 case "Bottom": isTouchBottom = false; break;
-                case "Right": isTouchRight = false; break;
-                case "Left": isTouchLeft = false; break;
+                case "Right":
+                    leftTouchCount--;
+                    if (leftTouchCount <= 0)
+                    {
+                        isTouchRight = false;
+                    }  
+                    break;
+                case "Left":
+                    leftTouchCount--;
+                    if(leftTouchCount <= 0)
+                    {
+                        isTouchLeft = false;
+                    }
+                    break;
+                    
             }
         }
     }

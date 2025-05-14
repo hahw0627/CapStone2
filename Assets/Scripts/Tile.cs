@@ -12,7 +12,7 @@ public class Tile : MonoBehaviour
 
     private void Update()
     {
-        if (transform.position.z < -20f)
+        if (transform.position.z < -40f)
         {
             gameObject.SetActive(false);
             TileManager.Instance.Release(TileId, gameObject);
