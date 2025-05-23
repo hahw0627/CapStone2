@@ -28,6 +28,7 @@ public class Enemy : MonoBehaviour
                 gameManager.AddScore(enemyScore);
             }
 
+            AudioManager.Instance.MonsterDeadSound();
             Destroy(gameObject);
         }
     }

@@ -136,6 +136,8 @@ public class Player : MonoBehaviour
         Rigidbody rigid = bullet.GetComponent<Rigidbody>();
         rigid.AddForce(transform.forward * bulletForce, ForceMode.Impulse);
 
+        AudioManager.Instance.PlayAttackSound();
+
         curShotDelay = 0;
     }
 
@@ -173,6 +175,7 @@ public class Player : MonoBehaviour
                 return;
             }
             isHit = true;
+            AudioManager.Instance.PlayerHitSound();
             life--;
             gameManager.UpdateLifeIcon(life);
 
