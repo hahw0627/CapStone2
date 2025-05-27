@@ -6,20 +6,21 @@ public class Enemy : MonoBehaviour
     public int health;
     public int enemyScore;
     public Material[] materials; // materials[0]: 기본, materials[1]: 피격 시
-
     public GameObject player;
-    private Renderer objRenderer;
+    protected Renderer objRenderer; // private에서 protected로 변경
 
     void Awake()
     {
         objRenderer = GetComponent<Renderer>();
     }
 
-    void OnHit(int dmg)
+    // virtual로 만들어서 상속받은 클래스에서 오버라이드 가능하게
+    protected virtual void OnHit(int dmg)
     {
         health -= dmg;
         objRenderer.material = materials[1]; // 피격 시 머티리얼 교체
         Invoke("ReturnMaterial", 0.1f);
+
         if (health <= 0)
         {
             GameManager gameManager = Object.FindFirstObjectByType<GameManager>();
@@ -27,7 +28,6 @@ public class Enemy : MonoBehaviour
             {
                 gameManager.AddScore(enemyScore);
             }
-
             AudioManager.Instance.MonsterDeadSound();
             Destroy(gameObject);
         }

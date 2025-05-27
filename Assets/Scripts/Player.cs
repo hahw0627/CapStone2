@@ -152,19 +152,19 @@ public class Player : MonoBehaviour
         {
             switch (collision.gameObject.name)
             {
-                case "Top": 
-                    isTouchTop = true; 
+                case "Top":
+                    isTouchTop = true;
                     break;
-                case "Bottom": 
-                    isTouchBottom = true; 
+                case "Bottom":
+                    isTouchBottom = true;
                     break;
                 case "Right":
                     leftTouchCount++;
-                    isTouchRight = true; 
+                    isTouchRight = true;
                     break;
-                case "Left": 
-                    leftTouchCount++; 
-                    isTouchLeft = true; 
+                case "Left":
+                    leftTouchCount++;
+                    isTouchLeft = true;
                     break;
             }
         }
@@ -189,6 +189,28 @@ public class Player : MonoBehaviour
             }
             gameObject.SetActive(false);
             Destroy(collision.gameObject);
+        }
+        else if (collision.gameObject.CompareTag("FireArea")) // 불장판 처리 추가
+        {
+            if (isHit)
+            {
+                return;
+            }
+            isHit = true;
+            AudioManager.Instance.PlayerHitSound();
+            life--;
+            gameManager.UpdateLifeIcon(life);
+
+            if (life == 0)
+            {
+                gameManager.GameOver();
+            }
+            else
+            {
+                gameManager.RespawnPlayer();
+            }
+            gameObject.SetActive(false);
+            // 불장판은 파괴하지 않음 (시간이 지나면 자동으로 사라짐)
         }
     }
 
