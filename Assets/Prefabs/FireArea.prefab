@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3812749186124146260}
   - component: {fileID: 4985827429528553440}
   - component: {fileID: 8102314898060395881}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: FireArea
   m_TagString: FireArea
   m_Icon: {fileID: 0}

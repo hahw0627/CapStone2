@@ -2482,6 +2482,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 160194603946114070, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: skillRange
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: skillWidth
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
       propertyPath: gameManager
       value: 
