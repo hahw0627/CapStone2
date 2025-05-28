@@ -25,11 +25,16 @@ public class Player : MonoBehaviour
     public float dashDistance = 5f;
     public float doubleClickTime = 0.3f;
 
+    [Header("Skill Attack")]
+    public float skillRange = 10f; // 스킬 범위
+    public float skillWidth = 8f; // 스킬 폭
+    public int skillDamage = 5; // 스킬 데미지
+    // public GameObject skillEffectPrefab; // 스킬 이펙트 프리팹 (선택사항)
+
     private float lastClickTimeLeft = -1f;
     private float lastClickTimeRight = -1f;
     private bool isDashing = false;
     private int leftTouchCount = 0;
-
 
     void Start()
     {
@@ -146,6 +151,46 @@ public class Player : MonoBehaviour
         curShotDelay += Time.deltaTime;
     }
 
+    public void UseSkillAttack()
+    {
+        // 플레이어 전방 범위에 있는 모든 적에게 데미지
+        Vector3 skillCenter = transform.position + transform.forward * (skillRange / 2f);
+
+        // 스킬 이펙트 생성 (선택사항)
+        /* if (skillEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(skillEffectPrefab, skillCenter, transform.rotation);
+            Destroy(effect, 2f); // 2초 후 이펙트 삭제
+        }*/
+
+        // 스킬 범위 내의 모든 적 탐지
+        Collider[] enemiesInRange = Physics.OverlapBox(
+            skillCenter,
+            new Vector3(skillWidth / 2f, 2f, skillRange / 2f),
+            transform.rotation,
+            LayerMask.GetMask("Enemy") // Enemy 레이어에 있는 오브젝트만 탐지
+        );
+
+        // 탐지된 적들에게 데미지 적용
+        foreach (Collider enemyCollider in enemiesInRange)
+        {
+            Enemy enemy = enemyCollider.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                // Enemy 클래스의 OnHit 메서드를 호출하기 위해 리플렉션 사용
+                enemy.GetType().GetMethod("OnHit",
+                    System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance)
+                    ?.Invoke(enemy, new object[] { skillDamage });
+            }
+        }
+
+        // 스킬 사용 사운드 재생 (선택사항)
+       // AudioManager.Instance.PlayAttackSound(); // 또는 별도의 스킬 사운드
+
+        Debug.Log($"스킬 공격! {enemiesInRange.Length}명의 적에게 {skillDamage} 데미지!");
+    }
+
     private void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.CompareTag("Border"))
@@ -212,6 +257,16 @@ public class Player : MonoBehaviour
             gameObject.SetActive(false);
             // 불장판은 파괴하지 않음 (시간이 지나면 자동으로 사라짐)
         }
+        else if (collision.gameObject.CompareTag("Item"))
+        {
+            Debug.Log("플레이어가 아이템을 획득했습니다!");
+            Item item = collision.gameObject.GetComponent<Item>();
+            if (item != null)
+            {
+                item.UseItem(this);
+                Destroy(collision.gameObject);
+            }
+        }
     }
 
     private void OnTriggerExit(Collider collision)
@@ -227,16 +282,15 @@ public class Player : MonoBehaviour
                     if (leftTouchCount <= 0)
                     {
                         isTouchRight = false;
-                    }  
+                    }
                     break;
                 case "Left":
                     leftTouchCount--;
-                    if(leftTouchCount <= 0)
+                    if (leftTouchCount <= 0)
                     {
                         isTouchLeft = false;
                     }
                     break;
-                    
             }
         }
     }
@@ -245,5 +299,10 @@ public class Player : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
+        // 스킬 범위 시각화
+        Gizmos.color = Color.blue;
+        Vector3 skillCenter = transform.position + transform.forward * (skillRange / 2f);
+        Gizmos.DrawWireCube(skillCenter, new Vector3(skillWidth, 4f, skillRange));
     }
 }
