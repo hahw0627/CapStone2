@@ -154,8 +154,9 @@ MonoBehaviour:
   enemyScore: 200
   materials:
   - {fileID: 2100000, guid: 94e3b4682461c1047ba351037b7cf769, type: 2}
-  - {fileID: 2100000, guid: c2e40fa84d53ccd428f640eac126b1fb, type: 2}
+  - {fileID: 2100000, guid: 3541ab1bcff79c04a909c93f2e37a087, type: 2}
   player: {fileID: 7818770976773650473, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
   itemPrefabs:
   - {fileID: 6384090142539958805, guid: c9601aafaa9721247bb4c1e65538988c, type: 3}
   itemDropChance: 0.708
+  deathEffectPrefab: {fileID: 6813416509558619124, guid: 3b7f2c753d435d647a80f1f047a113e3, type: 3}

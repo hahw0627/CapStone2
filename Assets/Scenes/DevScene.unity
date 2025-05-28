@@ -2498,6 +2498,10 @@ PrefabInstance:
       propertyPath: gameManager
       value: 
       objectReference: {fileID: 1504788099}
+    - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: hitMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 3541ab1bcff79c04a909c93f2e37a087, type: 2}
     - target: {fileID: 5672716061344801442, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2657,7 +2661,7 @@ PrefabInstance:
     - target: {fileID: 7460419232568910841, guid: 97fcd337ee789ba4690d9a25c8d0f7ce, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+      objectReference: {fileID: 2100000, guid: 594ea882c5a793440b60ff72d896021e, type: 2}
     - target: {fileID: 8169264810143860661, guid: 97fcd337ee789ba4690d9a25c8d0f7ce, type: 3}
       propertyPath: m_IsActive
       value: 1
