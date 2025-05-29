@@ -16,6 +16,11 @@ public class GameManager : MonoBehaviour
     public Image[] lifeImage;
     public GameObject gameOverSet;
 
+
+    void Start()
+    {
+        AudioManager.Instance.PlayBGM(AudioManager.Instance.mainBGM);
+    }
     void Update()
     {
         curSpawnDelay += Time.deltaTime;

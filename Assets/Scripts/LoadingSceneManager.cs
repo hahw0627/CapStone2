@@ -17,6 +17,7 @@ public class LoadingSceneManager : MonoBehaviour
     {
         touchText.gameObject.SetActive(false);
         StartCoroutine(LoadScene());
+        AudioManager.Instance.PlayBGM(AudioManager.Instance.lobbyBGM);
     }
 
     private void Update()

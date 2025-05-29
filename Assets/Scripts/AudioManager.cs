@@ -11,9 +11,12 @@ public class AudioManager : MonoBehaviour
     public AudioClip monsterDeadClip;
     public AudioClip playerHitClip;
     public AudioClip playerRevivalClip;
-    // public AudioClip bgmClip;
+
     // public AudioClip buttonClickClip;
     // public AudioClip gameOverClip;
+
+    public AudioClip lobbyBGM;
+    public AudioClip mainBGM;
 
     private void Awake()
     {
@@ -48,15 +51,19 @@ public class AudioManager : MonoBehaviour
     {
         PlaySFX(playerRevivalClip);
     }
-    /* public void PlayBGM()
-     {
-         if (bgmSource != null && bgmClip != null)
-         {
-             bgmSource.clip = bgmClip;
-             bgmSource.loop = true;
-             bgmSource.Play();
-         }
-     }*/
+    public void PlayBGM(AudioClip bgmClip)
+    {
+        if (bgmSource != null && bgmClip != null)
+        {
+            if (bgmSource.isPlaying)
+            {
+                bgmSource.Stop();
+            }
+            bgmSource.clip = bgmClip;
+            bgmSource.loop = true;
+            bgmSource.Play();
+        }
+    }
 
     public void PlaySFX(AudioClip clip)
     {
