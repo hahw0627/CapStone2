@@ -83,4 +83,20 @@ public class AudioManager : MonoBehaviour
         PlaySFX(gameOverClip);
     }*/
 
+    public void SetBGMVolume(float volume)
+    {
+        if (bgmSource != null)
+        {
+            bgmSource.volume = volume;
+        }
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        if (sfxSource != null)
+        {
+            sfxSource.volume = volume;
+        }
+    }
+
 }
