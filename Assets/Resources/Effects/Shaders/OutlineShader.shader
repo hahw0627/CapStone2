@@ -6,6 +6,7 @@ Shader "Custom/URPOutlineFixed"
         _OutlineColor ("Outline Color", Color) = (0,0,0,1)
         _OutlineThickness ("Outline Thickness", Float) = 0.03
     }
+
     SubShader
     {
         Tags { "RenderType"="Opaque" "Queue"="Geometry" }
@@ -27,6 +28,7 @@ Shader "Custom/URPOutlineFixed"
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
             };
 
             struct Varyings
@@ -35,16 +37,18 @@ Shader "Custom/URPOutlineFixed"
             };
 
             float _OutlineThickness;
+            float4 _OutlineColor;
 
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
-                float3 scaled = IN.positionOS.xyz * (1.0 + _OutlineThickness); // 스케일 확장
-                OUT.positionHCS = TransformObjectToHClip(scaled);
+
+                float3 worldNormal = TransformObjectToWorldNormal(IN.normalOS);
+                float3 worldPos = TransformObjectToWorld(IN.positionOS.xyz) + worldNormal * _OutlineThickness;
+
+                OUT.positionHCS = TransformWorldToHClip(worldPos);
                 return OUT;
             }
-
-            float4 _OutlineColor;
 
             half4 frag(Varyings IN) : SV_Target
             {
@@ -76,14 +80,14 @@ Shader "Custom/URPOutlineFixed"
                 float4 positionHCS : SV_POSITION;
             };
 
+            float4 _BaseColor;
+
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
                 OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 return OUT;
             }
-
-            float4 _BaseColor;
 
             half4 frag(Varyings IN) : SV_Target
             {

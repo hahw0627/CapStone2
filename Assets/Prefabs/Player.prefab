@@ -144,6 +144,14 @@ MonoBehaviour:
   isHit: 0
   dashDistance: 2
   doubleClickTime: 0.3
+  skillRange: 10
+  skillWidth: 8
+  skillDamage: 5
+  defaultMaterial: {fileID: 0}
+  buffMaterial: {fileID: 2100000, guid: 3541ab1bcff79c04a909c93f2e37a087, type: 2}
+  materialChangeDuration: 0.1
+  hitMaterial: {fileID: 2100000, guid: fb4fa0ca84be7014f9f13118fc3654fa, type: 2}
+  hitEffectDuration: 0.2
 --- !u!136 &160194603946114070
 CapsuleCollider:
   m_ObjectHideFlags: 0

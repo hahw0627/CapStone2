@@ -3,12 +3,16 @@ using UnityEngine;
 public class FireArea : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeed = 5f; // ·¯³Ê °ÔÀÓ ÀÌµ¿ ¼Óµµ (¸ó½ºÅÍ¿Í ºñ½ÁÇÏ°Ô)
+    public float moveSpeed = 5f; // ëŸ¬ë„ˆ ê²Œì„ ì´ë™ ì†ë„ (ëª¬ìŠ¤í„°ì™€ ë¹„ìŠ·í•˜ê²Œ)
     private Rigidbody rigid;
+
+    [Header("Fire Effect")]
+    public GameObject fireEffectPrefab; // ë¶ˆì´í™íŠ¸ í”„ë¦¬íŒ¹
+    private GameObject fireEffectInstance; // ì¸ìŠ¤í„´ìŠ¤í™”ëœ ì´í™íŠ¸
 
     void Start()
     {
-        Debug.Log("ºÒÀåÆÇ »ı¼ºµÊ!");
+        Debug.Log("ë¶ˆì¥íŒ ìƒì„±ë¨!");
 
         rigid = GetComponent<Rigidbody>();
         if (rigid == null)
@@ -16,38 +20,62 @@ public class FireArea : MonoBehaviour
             rigid = gameObject.AddComponent<Rigidbody>();
         }
 
-        // Áß·Â ²ô±â (¹Ù´Ú¿¡ ºÙ¾îÀÖ°Ô)
+        // ì¤‘ë ¥ ë„ê¸° (ë°”ë‹¥ì— ë¶™ì–´ìˆê²Œ)
         rigid.useGravity = false;
 
-        // È¸Àü °íÁ¤ (ºÒÀåÆÇÀÌ È¸ÀüÇÏÁö ¾Êµµ·Ï)
+        // íšŒì „ ê³ ì • (ë¶ˆì¥íŒì´ íšŒì „í•˜ì§€ ì•Šë„ë¡)
         rigid.freezeRotation = true;
 
-        // µÚÂÊÀ¸·Î ÀÌµ¿ (·¯³Ê °ÔÀÓ È¿°ú)
+        // ë’¤ìª½ìœ¼ë¡œ ì´ë™ (ëŸ¬ë„ˆ ê²Œì„ íš¨ê³¼)
         rigid.linearVelocity = new Vector3(0, 0, -moveSpeed);
+
+        // ì´í™íŠ¸ ìƒì„± ë° ì¬ìƒ
+        if (fireEffectPrefab != null)
+        {
+            // ì´í™íŠ¸ë¥¼ í˜„ì¬ ìœ„ì¹˜ì— ìƒì„±í•˜ê³  ë¶ˆì¥íŒì„ ë”°ë¼ê°€ë„ë¡ ë¶€ëª¨ë¡œ ì„¤ì •
+            fireEffectInstance = Instantiate(fireEffectPrefab, transform.position, Quaternion.identity);
+            fireEffectInstance.transform.SetParent(transform); // ë¶€ëª¨-ìì‹ ê´€ê³„ ì„¤ì •
+
+            fireEffectInstance.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            fireEffectInstance.transform.localPosition = new Vector3(0f, -0.004f, 0f);
+
+            // íŒŒí‹°í´ ì¬ìƒ
+            var ps = fireEffectInstance.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                ps.Play();
+            }
+        }
     }
 
-    // ÇÃ·¹ÀÌ¾î µ¥¹ÌÁö´Â Player ½ºÅ©¸³Æ®ÀÇ OnTriggerEnter¿¡¼­ Ã³¸®
+    // í”Œë ˆì´ì–´ ë°ë¯¸ì§€ëŠ” Player ìŠ¤í¬ë¦½íŠ¸ì˜ OnTriggerEnterì—ì„œ ì²˜ë¦¬
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"ºÒÀåÆÇÀÌ {other.gameObject.name} (ÅÂ±×: {other.gameObject.tag})¿Í Ãæµ¹!");
+        Debug.Log($"ë¶ˆì¥íŒì´ {other.gameObject.name} (íƒœê·¸: {other.gameObject.tag})ì™€ ì¶©ëŒ!");
 
-        // °æ°è¼±¿¡ ´êÀ¸¸é ÆÄ±« (¸ó½ºÅÍ¿Í µ¿ÀÏ)
+        // ê²½ê³„ì„ ì— ë‹¿ìœ¼ë©´ íŒŒê´´ (ëª¬ìŠ¤í„°ì™€ ë™ì¼)
         if (other.gameObject.CompareTag("BorderBullet"))
         {
-            Debug.Log("ºÒÀåÆÇÀÌ °æ°è¼±¿¡ ´ê¾Æ ÆÄ±«µÊ");
+            Debug.Log("ë¶ˆì¥íŒì´ ê²½ê³„ì„ ì— ë‹¿ì•„ íŒŒê´´ë¨");
             Destroy(gameObject);
         }
-        // ¾ÆÀÌÅÛ°ú´Â Ãæµ¹ÇÏÁö ¾Êµµ·Ï (¾ÆÀÌÅÛÀ» ÆÄ±«ÇÏÁö ¾ÊÀ½)
+        // ì•„ì´í…œê³¼ëŠ” ì¶©ëŒí•˜ì§€ ì•Šë„ë¡ (ì•„ì´í…œì„ íŒŒê´´í•˜ì§€ ì•ŠìŒ)
         else if (other.gameObject.CompareTag("Item"))
         {
-            Debug.Log("ºÒÀåÆÇÀÌ ¾ÆÀÌÅÛ°ú Ãæµ¹ÇßÁö¸¸ ¹«½ÃÇÔ");
-            // ¾Æ¹«°Íµµ ÇÏÁö ¾ÊÀ½ - ¾ÆÀÌÅÛ°ú ºÒÀåÆÇÀÌ °øÁ¸ÇÒ ¼ö ÀÖµµ·Ï
+            Debug.Log("ë¶ˆì¥íŒì´ ì•„ì´í…œê³¼ ì¶©ëŒí–ˆì§€ë§Œ ë¬´ì‹œí•¨");
+            // ì•„ë¬´ê²ƒë„ í•˜ì§€ ì•ŠìŒ - ì•„ì´í…œê³¼ ë¶ˆì¥íŒì´ ê³µì¡´í•  ìˆ˜ ìˆë„ë¡
         }
     }
 
-    // ºÒÀåÆÇÀÌ ÆÄ±«µÉ ¶§ ·Î±× Ãâ·Â
+    // ë¶ˆì¥íŒì´ íŒŒê´´ë  ë•Œ ë¡œê·¸ ì¶œë ¥ ë° ì´í™íŠ¸ë„ ì œê±°
     void OnDestroy()
     {
-        Debug.Log("ºÒÀåÆÇ ÆÄ±«µÊ");
+        Debug.Log("ë¶ˆì¥íŒ íŒŒê´´ë¨");
+
+        // ìƒì„±ëœ ì´í™íŠ¸ë„ í•¨ê»˜ ì œê±°
+        if (fireEffectInstance != null)
+        {
+            Destroy(fireEffectInstance);
+        }
     }
 }
