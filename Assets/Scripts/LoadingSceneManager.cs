@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class LoadingSceneManager : MonoBehaviour
 {
-    public static string nextScene = "DevScene";
+    public static string nextScene = "ComicScene";
 
     [SerializeField] private Slider progressSlider;
     [SerializeField] private Text touchText; // 일반 Text일 경우 UnityEngine.UI.Text

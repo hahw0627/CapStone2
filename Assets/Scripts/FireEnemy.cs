@@ -35,7 +35,8 @@ public class FireEnemy : Enemy
     {
         if (fireAreaPrefab != null)
         {
-            Vector3 firePosition = new Vector3(transform.position.x, transform.position.y - 0.6f, transform.position.z);
+            Vector3 firePosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+            Vector3 fireRotation = new Vector3(transform.rotation.x, transform.rotation.y, transform.rotation.z);
             GameObject fireArea = Instantiate(fireAreaPrefab, firePosition, Quaternion.identity);
 
             // 불장판 지속시간 설정
