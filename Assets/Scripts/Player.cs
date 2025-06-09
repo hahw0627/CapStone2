@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Player : MonoBehaviour
 {
@@ -26,19 +27,35 @@ public class Player : MonoBehaviour
     public float doubleClickTime = 0.3f;
 
     [Header("Skill Attack")]
-    public float skillRange = 10f; // 스킬 범위
-    public float skillWidth = 8f; // 스킬 폭
-    public int skillDamage = 5; // 스킬 데미지
-    // public GameObject skillEffectPrefab; // 스킬 이펙트 프리팹 (선택사항)
+    public float skillRange = 10f;
+    public float skillWidth = 8f;
+    public int skillDamage = 5;
+
+    // 머티리얼 관련
+    private Renderer playerRenderer;
+    public Material defaultMaterial;
+    public Material buffMaterial;
+    public float materialChangeDuration = 0.1f;
+    public Material hitMaterial;
+    public float hitEffectDuration = 0.2f;
 
     private float lastClickTimeLeft = -1f;
     private float lastClickTimeRight = -1f;
     private bool isDashing = false;
     private int leftTouchCount = 0;
 
+    private Coroutine materialCoroutine;
+    private enum MaterialState { Default, Hit, Buff }
+    private MaterialState currentMaterialState = MaterialState.Default;
+
     void Start()
     {
         score = 0;
+        playerRenderer = GetComponent<Renderer>();
+        if (playerRenderer != null)
+        {
+            defaultMaterial = playerRenderer.sharedMaterial;
+        }
     }
 
     void Update()
@@ -84,7 +101,7 @@ public class Player : MonoBehaviour
                 if (Time.time - lastClickTimeLeft < doubleClickTime)
                 {
                     Dash(Vector3.left);
-                    lastClickTimeLeft = -1f; // 리셋
+                    lastClickTimeLeft = -1f;
                 }
                 else
                 {
@@ -191,18 +208,32 @@ public class Player : MonoBehaviour
         Debug.Log($"스킬 공격! {enemiesInRange.Length}명의 적에게 {skillDamage} 데미지!");
     }
 
+    IEnumerator DieAfterDelay()
+    {
+        yield return new WaitForSeconds(hitEffectDuration); // 머티리얼 효과 볼 시간
+
+        SetMaterial(defaultMaterial); // 복구
+        gameManager.GameOver();
+        gameObject.SetActive(false);
+    }
+
+    IEnumerator RespawnAfterHit()
+    {
+        yield return new WaitForSeconds(hitEffectDuration); // 피격 연출
+
+        SetMaterial(defaultMaterial); // 복구
+        gameManager.RespawnPlayer();
+        gameObject.SetActive(false);
+    }
+
     private void OnTriggerEnter(Collider collision)
     {
         if (collision.gameObject.CompareTag("Border"))
         {
             switch (collision.gameObject.name)
             {
-                case "Top":
-                    isTouchTop = true;
-                    break;
-                case "Bottom":
-                    isTouchBottom = true;
-                    break;
+                case "Top": isTouchTop = true; break;
+                case "Bottom": isTouchBottom = true; break;
                 case "Right":
                     leftTouchCount++;
                     isTouchRight = true;
@@ -213,26 +244,26 @@ public class Player : MonoBehaviour
                     break;
             }
         }
-        else if (collision.gameObject.CompareTag("Enemy"))
+        else if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("FireArea"))
         {
-            if (isHit)
-            {
-                return;
-            }
+            if (isHit) return;
+
             isHit = true;
             AudioManager.Instance.PlayerHitSound();
+            TriggerHitEffect(); // 빨간색으로 변경
+
             life--;
             gameManager.UpdateLifeIcon(life);
 
             if (life == 0)
             {
-                gameManager.GameOver();
+                StartCoroutine(DieAfterDelay()); // 잠깐 대기 후 죽음 처리
             }
             else
             {
-                gameManager.RespawnPlayer();
+                StartCoroutine(RespawnAfterHit());
             }
-            gameObject.SetActive(false);
+
             Destroy(collision.gameObject);
         }
         else if (collision.gameObject.CompareTag("FireArea")) // 불장판 처리 추가
@@ -242,7 +273,6 @@ public class Player : MonoBehaviour
                 return;
             }
             isHit = true;
-            AudioManager.Instance.PlayerHitSound();
             life--;
             gameManager.UpdateLifeIcon(life);
 
@@ -264,6 +294,7 @@ public class Player : MonoBehaviour
             if (item != null)
             {
                 item.UseItem(this);
+                ChangeMaterialTemporarily();
                 Destroy(collision.gameObject);
             }
         }
@@ -279,20 +310,65 @@ public class Player : MonoBehaviour
                 case "Bottom": isTouchBottom = false; break;
                 case "Right":
                     leftTouchCount--;
-                    if (leftTouchCount <= 0)
-                    {
-                        isTouchRight = false;
-                    }
+                    if (leftTouchCount <= 0) isTouchRight = false;
                     break;
                 case "Left":
                     leftTouchCount--;
-                    if (leftTouchCount <= 0)
-                    {
-                        isTouchLeft = false;
-                    }
+                    if (leftTouchCount <= 0) isTouchLeft = false;
                     break;
             }
         }
+    }
+    IEnumerator FlashHitMaterial()
+    {
+        SetMaterial(hitMaterial);
+        currentMaterialState = MaterialState.Hit;
+
+        yield return new WaitForSeconds(hitEffectDuration);
+
+        if (currentMaterialState == MaterialState.Hit)
+        {
+            SetMaterial(defaultMaterial);
+            currentMaterialState = MaterialState.Default;
+        }
+
+        materialCoroutine = null;
+    }
+
+    void SetMaterial(Material mat)
+    {
+        if (playerRenderer != null && mat != null)
+        {
+            playerRenderer.material = mat;
+        }
+    }
+
+    void ChangeMaterialTemporarily()
+    {
+        if (materialCoroutine != null)
+            StopCoroutine(materialCoroutine);
+
+        SetMaterial(buffMaterial);
+        currentMaterialState = MaterialState.Buff;
+
+        Invoke(nameof(ReturnToDefaultMaterial), materialChangeDuration);
+    }
+
+    void ReturnToDefaultMaterial()
+    {
+        if (currentMaterialState == MaterialState.Buff)
+        {
+            SetMaterial(defaultMaterial);
+            currentMaterialState = MaterialState.Default;
+        }
+    }
+
+    void TriggerHitEffect()
+    {
+        if (materialCoroutine != null)
+            StopCoroutine(materialCoroutine);
+
+        materialCoroutine = StartCoroutine(FlashHitMaterial());
     }
 
     private void OnDrawGizmosSelected()
