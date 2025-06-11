@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
@@ -68,6 +69,12 @@ public class Player : MonoBehaviour
 
     void Move()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+
         float h = 0;
         float v = Input.GetAxisRaw("Vertical");
 
@@ -92,6 +99,11 @@ public class Player : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
             Vector3 inputPos = Input.mousePosition;
             float halfScreen = Screen.width / 2f;
 

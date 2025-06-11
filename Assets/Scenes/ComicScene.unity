@@ -471,33 +471,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59fd7c6fa1bc61845a091ca7b90f3f2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  comicCuts:
+  cuts:
   - image: {fileID: -369368662, guid: e856345e917d14f49b8e1caba21a9dfd, type: 3}
-    description: "\uB204\uAD70\uAC00 \uB2F4\uBC30\uB97C \uD53C\uC6B0\uACE0, \uAEBC\uC9C0\uC9C0
+    text: "\uB204\uAD70\uAC00 \uB2F4\uBC30\uB97C \uD53C\uC6B0\uACE0, \uAEBC\uC9C0\uC9C0
       \uC54A\uC740 \uCC44\uB85C \uC4F0\uB808\uAE30\uD1B5\uC5D0 \uBC84\uB838\uC5B4\uC694."
   - image: {fileID: 428892673, guid: e856345e917d14f49b8e1caba21a9dfd, type: 3}
-    description: "\uADF8 \uB2F4\uBC30\uB294 \uC544\uC9C1 \uB728\uAC70\uC6E0\uACE0,
-      \uC885\uC774\uB4E4\uACFC \uB2FF\uC544 \uC704\uD5D8\uD574\uC84C\uC5B4\uC694."
+    text: "\uADF8 \uB2F4\uBC30\uB294 \uC544\uC9C1 \uB728\uAC70\uC6E0\uACE0, \uC885\uC774\uB4E4\uACFC
+      \uB2FF\uC544 \uC704\uD5D8\uD574\uC84C\uC5B4\uC694."
   - image: {fileID: -1151697323, guid: e856345e917d14f49b8e1caba21a9dfd, type: 3}
-    description: "\uC7A0\uC2DC \uD6C4 \uC4F0\uB808\uAE30\uD1B5\uC5D0\uC11C \uBD88\uC774
+    text: "\uC7A0\uC2DC \uD6C4 \uC4F0\uB808\uAE30\uD1B5\uC5D0\uC11C \uBD88\uC774
       \uB098\uAE30 \uC2DC\uC791\uD588\uC5B4\uC694!"
   - image: {fileID: 155787286, guid: e856345e917d14f49b8e1caba21a9dfd, type: 3}
-    description: "\uC791\uC740 \uBD88\uC740 \uC810\uC810 \uB354 \uCEE4\uC9C0\uACE0
-      \uC704\uD5D8\uD574\uC84C\uC5B4\uC694!"
+    text: "\uC791\uC740 \uBD88\uC740 \uC810\uC810 \uB354 \uCEE4\uC9C0\uACE0 \uC704\uD5D8\uD574\uC84C\uC5B4\uC694!"
   - image: {fileID: 1605179315, guid: f5fc8bb3681779b498b6f4ee1730d287, type: 3}
-    description: "\uC774\uB7F4 \uB550 \uC18C\uD654\uAE30\uB97C \uAEBC\uB0B4\uC57C
-      \uD574\uC694!"
+    text: "\uC774\uB7F4 \uB550 \uC18C\uD654\uAE30\uB97C \uAEBC\uB0B4\uC57C \uD574\uC694!"
   - image: {fileID: -42937221, guid: f5fc8bb3681779b498b6f4ee1730d287, type: 3}
-    description: "\uBD88\uC774 \uB09C \uCABD\uC73C\uB85C \uC870\uC2EC\uD788 \uB2E4\uAC00\uAC00\uC694."
+    text: "\uBD88\uC774 \uB09C \uCABD\uC73C\uB85C \uC870\uC2EC\uD788 \uB2E4\uAC00\uAC00\uC694."
   - image: {fileID: -225451879, guid: f5fc8bb3681779b498b6f4ee1730d287, type: 3}
-    description: "\uC190\uC7A1\uC774\uB97C \uAF2D \uB20C\uB7EC\uC11C \uC18C\uD654\uC57D\uC744
+    text: "\uC190\uC7A1\uC774\uB97C \uAFB9 \uB20C\uB7EC\uC11C \uC18C\uD654\uC57D\uC744
       \uBFCC\uB824\uC694."
   - image: {fileID: -128638203, guid: f5fc8bb3681779b498b6f4ee1730d287, type: 3}
-    description: "\uC88B\uC544\uC694! \uBD88\uC744 \uC548\uC804\uD558\uAC8C \uAED0\uC5B4\uC694!\n\uC774\uC81C
-      \uB9CE\uC740 \uD654\uC7AC\uB4E4\uC744 \uC9C1\uC811 \uAEBC\uBCF4\uB7EC \uAC00\uBCF4\uC544\uC694!"
-  comicImage: {fileID: 422686467}
-  descriptionText: {fileID: 1966231154}
-  screenButton: {fileID: 1758274078}
+    text: "\uC88B\uC544\uC694! \uBD88\uC744 \uC548\uC804\uD558\uAC8C \uAED0\uC5B4\uC694!
+      \uC774\uC81C \uB9CE\uC740 \uD654\uC7AC\uB4E4\uC744 \uC9C1\uC811 \uAEBC\uBCF4\uB7EC
+      \uAC00\uBCF4\uC544\uC694!"
+  cutImage: {fileID: 422686467}
+  cutText: {fileID: 1966231154}
+  nextButton: {fileID: 1758274078}
 --- !u!4 &1217151553
 Transform:
   m_ObjectHideFlags: 0
