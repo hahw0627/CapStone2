@@ -36,7 +36,7 @@ public class FireArea : MonoBehaviour
             fireEffectInstance = Instantiate(fireEffectPrefab, transform.position, Quaternion.identity);
             fireEffectInstance.transform.SetParent(transform); // 부모-자식 관계 설정
 
-            fireEffectInstance.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            fireEffectInstance.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
             fireEffectInstance.transform.localPosition = new Vector3(0f, -0.004f, 0f);
 
             // 파티클 재생
