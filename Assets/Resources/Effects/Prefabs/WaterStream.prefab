@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1541273305673151751}
   - component: {fileID: 5451222079245552503}
   - component: {fileID: 7045583912073275535}
+  - component: {fileID: -3831243406904518987}
   m_Layer: 0
   m_Name: WaterStream
   m_TagString: PlayerBullet
@@ -26,9 +27,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2027514898499431695}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.59000003, y: 1.03, z: -15.960017}
-  m_LocalScale: {x: 4, y: 6, z: 4}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -169,7 +170,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 20
+      scalar: 4
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -223,7 +224,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 0.3764706}
+      maxColor: {r: 1, g: 1, b: 1, a: 0.2509804}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -287,7 +288,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.3
+      scalar: 0.5
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -3619,7 +3620,7 @@ ParticleSystem:
         m_NumAlphaKeys: 2
     range: {x: 0, y: 1}
   CollisionModule:
-    enabled: 0
+    enabled: 1
     serializedVersion: 4
     type: 1
     collisionMode: 0
@@ -3684,7 +3685,7 @@ ParticleSystem:
     m_Bounce:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 0
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -4780,7 +4781,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0966ecc2038ed87478fef055047c477c, type: 2}
+  - {fileID: 2100000, guid: 98033b0d679a2cb4ea78fe8a2540a1e1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4833,3 +4834,16 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &-3831243406904518987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2027514898499431695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19d96235530db034ba0f1898d3df86e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 1

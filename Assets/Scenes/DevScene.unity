@@ -7414,6 +7414,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 3541ab1bcff79c04a909c93f2e37a087, type: 2}
     - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: defaultMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 0966ecc2038ed87478fef055047c477c, type: 2}
+    - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: waterParticlePrefab
+      value: 
+      objectReference: {fileID: 2027514898499431695, guid: 7fafe63b179228646a7a2419a68c2c79, type: 3}
+    - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
       propertyPath: materialChangeDuration
       value: 0.1
       objectReference: {fileID: 0}

@@ -32,6 +32,11 @@ public class Player : MonoBehaviour
     public float skillWidth = 8f;
     public int skillDamage = 5;
 
+    [Header("Water Attack")]
+    public GameObject waterParticlePrefab;
+    public Transform firePoint;
+    public float waterDuration = 1f;
+
     // 머티리얼 관련
     private Renderer playerRenderer;
     public Material defaultMaterial;
@@ -49,6 +54,31 @@ public class Player : MonoBehaviour
     private enum MaterialState { Default, Hit, Buff }
     private MaterialState currentMaterialState = MaterialState.Default;
 
+    IEnumerator FireWaterParticle()
+    {
+        // 플레이어 전방에서 약간 앞쪽 위치 + Y축 오프셋
+        Vector3 spawnPos = transform.position + transform.forward * 1f;
+        spawnPos.z += 2.25f;
+
+        // 전방을 향한 회전값
+        Quaternion rotation = Quaternion.LookRotation(transform.forward);
+
+        GameObject particle = Instantiate(waterParticlePrefab, spawnPos, rotation);
+
+        // 파티클 설정 (루프 X)
+        ParticleSystem ps = particle.GetComponent<ParticleSystem>();
+        if (ps != null)
+        {
+            var main = ps.main;
+            main.loop = false;
+        }
+
+        AudioManager.Instance.PlayAttackSound();
+
+        Destroy(particle, waterDuration);
+        yield return null;
+    }
+
     void Start()
     {
         score = 0;
@@ -62,9 +92,9 @@ public class Player : MonoBehaviour
     void Update()
     {
         Move();
-        AutoFire();
         Reload();
         DetectDashInput();
+        HandleWaterAttack();
     }
 
     void Move()
@@ -162,17 +192,12 @@ public class Player : MonoBehaviour
         isDashing = false;
     }
 
-    void AutoFire()
+    void HandleWaterAttack()
     {
-        if (curShotDelay < maxShotDelay) return;
-
-        GameObject bullet = Instantiate(bulletObj, transform.position, Quaternion.identity);
-        Rigidbody rigid = bullet.GetComponent<Rigidbody>();
-        rigid.AddForce(transform.forward * bulletForce, ForceMode.Impulse);
-
-        AudioManager.Instance.PlayAttackSound();
-
-        curShotDelay = 0;
+        if (Input.GetKeyDown(KeyCode.Space)) // Space 키 입력 (변경 가능)
+        {
+            StartCoroutine(FireWaterParticle());
+        }
     }
 
     void Reload()

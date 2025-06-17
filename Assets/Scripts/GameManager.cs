@@ -47,23 +47,26 @@ public class GameManager : MonoBehaviour
             spawnPos[ranPos].rotation
         );
 
-        Rigidbody rigid = enemy.GetComponent<Rigidbody>();
         Enemy enemyLogic = enemy.GetComponent<Enemy>();
+
+        Vector3 moveDir;
 
         if (ranPos == 5 || ranPos == 6) // Right Spawn
         {
             enemy.transform.Rotate(Vector3.up * 90);
-            rigid.linearVelocity = new Vector3(-enemyLogic.speed, 0, -1);
+            moveDir = new Vector3(-1, 0, -1).normalized;
         }
         else if (ranPos == 7 || ranPos == 8) // Left Spawn
         {
             enemy.transform.Rotate(Vector3.up * -90);
-            rigid.linearVelocity = new Vector3(enemyLogic.speed, 0, -1);
+            moveDir = new Vector3(1, 0, -1).normalized;
         }
         else // Front Spawn
         {
-            rigid.linearVelocity = new Vector3(0, 0, -enemyLogic.speed);
+            moveDir = new Vector3(0, 0, -1);
         }
+
+        enemyLogic.SetMoveDirection(moveDir);
     }
 
     public void UpdateLifeIcon(int life)

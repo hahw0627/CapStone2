@@ -2,7 +2,7 @@
 
 public class Enemy : MonoBehaviour
 {
-    public int speed;
+    public float speed = 20f;
     public int health;
     public int enemyScore;
     public Material[] materials;
@@ -17,10 +17,33 @@ public class Enemy : MonoBehaviour
     public GameObject deathEffectPrefab;
 
     protected Renderer objRenderer;
+    private Rigidbody rb;
+
+    private Vector3 moveDirection = Vector3.back; // 기본값
+
+    public void SetMoveDirection(Vector3 dir)
+    {
+        moveDirection = dir;
+    }
 
     void Awake()
     {
         objRenderer = GetComponent<Renderer>();
+        rb = GetComponent<Rigidbody>();
+
+        // isKinematic을 true로 설정해 파티클 충돌 감지 가능하게 만듦
+        if (rb != null)
+        {
+            rb.isKinematic = true;
+        }
+    }
+    void FixedUpdate()
+    {
+        if (rb != null)
+        {
+            Vector3 movement = moveDirection * speed * Time.fixedDeltaTime;
+            rb.MovePosition(rb.position + movement);
+        }
     }
 
     protected virtual void OnHit(int dmg)
@@ -32,7 +55,6 @@ public class Enemy : MonoBehaviour
         if (health <= 0)
         {
             PlayDeathEffect();
-
             DropItem();
 
             GameManager gameManager = Object.FindFirstObjectByType<GameManager>();
@@ -79,7 +101,10 @@ public class Enemy : MonoBehaviour
         else if (other.gameObject.CompareTag("PlayerBullet"))
         {
             Bullet bullet = other.gameObject.GetComponent<Bullet>();
-            OnHit(bullet.dmg);
+            if (bullet != null)
+            {
+                OnHit(bullet.dmg);
+            }
             Destroy(other.gameObject);
         }
     }
