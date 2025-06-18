@@ -1,26 +1,18 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour
 {
-    public float speed;
-    public bool isTouchTop;
-    public bool isTouchBottom;
-    public bool isTouchRight;
-    public bool isTouchLeft;
+    public float speed = 50f;
+    public bool isTouchRight, isTouchLeft;
 
-    public int life;
-    public int score;
+    public int life, score;
 
-    public float maxShotDelay;
-    public float curShotDelay;
+    public float maxShotDelay, curShotDelay;
 
     public GameManager gameManager;
 
-    public GameObject bulletObj;
-
-    public float bulletForce = 10f;
     public float detectionRadius = 15f;
     public bool isHit;
 
@@ -37,109 +29,133 @@ public class Player : MonoBehaviour
     public Transform firePoint;
     public float waterDuration = 1f;
 
-    // ¸ÓÆ¼¸®¾ó °ü·Ã
     private Renderer playerRenderer;
-    public Material defaultMaterial;
-    public Material buffMaterial;
+    public Material defaultMaterial, buffMaterial, hitMaterial;
     public float materialChangeDuration = 0.1f;
-    public Material hitMaterial;
     public float hitEffectDuration = 0.2f;
 
-    private float lastClickTimeLeft = -1f;
-    private float lastClickTimeRight = -1f;
+    private float lastClickTimeLeft = -1f, lastClickTimeRight = -1f;
     private bool isDashing = false;
-    private int leftTouchCount = 0;
+
+    private Rigidbody rb;
+    private Vector3 inputDirection;
 
     private Coroutine materialCoroutine;
     private enum MaterialState { Default, Hit, Buff }
     private MaterialState currentMaterialState = MaterialState.Default;
 
-    IEnumerator FireWaterParticle()
-    {
-        // ÇÃ·¹ÀÌ¾î Àü¹æ¿¡¼­ ¾à°£ ¾ÕÂÊ À§Ä¡ + YÃà ¿ÀÇÁ¼Â
-        Vector3 spawnPos = transform.position + transform.forward * 1f;
-        spawnPos.z += 2.25f;
-
-        // Àü¹æÀ» ÇâÇÑ È¸Àü°ª
-        Quaternion rotation = Quaternion.LookRotation(transform.forward);
-
-        GameObject particle = Instantiate(waterParticlePrefab, spawnPos, rotation);
-
-        // ÆÄÆ¼Å¬ ¼³Á¤ (·çÇÁ X)
-        ParticleSystem ps = particle.GetComponent<ParticleSystem>();
-        if (ps != null)
-        {
-            var main = ps.main;
-            main.loop = false;
-        }
-
-        AudioManager.Instance.PlayAttackSound();
-
-        Destroy(particle, waterDuration);
-        yield return null;
-    }
+    private float fixedY;
+    private float fixedZ;
 
     void Start()
     {
         score = 0;
         playerRenderer = GetComponent<Renderer>();
         if (playerRenderer != null)
-        {
             defaultMaterial = playerRenderer.sharedMaterial;
-        }
+
+        rb = GetComponent<Rigidbody>();
+        if (rb != null)
+            rb.isKinematic = true;
+
+        fixedY = transform.position.y;
+        fixedZ = transform.position.z;
+
+        StartCoroutine(AutoFireWater());
+    }
+
+    void OnEnable()
+    {
+        StartCoroutine(AutoFireWater());
     }
 
     void Update()
     {
-        Move();
+        GetInput();
         Reload();
         DetectDashInput();
-        HandleWaterAttack();
     }
 
-    void Move()
+    void FixedUpdate()
+    {
+        Move();
+        LockPosition();
+        CheckAndPreventWallOverlap();
+    }
+
+    void GetInput()
     {
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
+            inputDirection = Vector3.zero;
             return;
         }
 
-
         float h = 0;
-        float v = Input.GetAxisRaw("Vertical");
 
         if (Input.GetMouseButton(0))
         {
             Vector3 inputPos = Input.mousePosition;
             float halfScreen = Screen.width / 2f;
-            if (inputPos.x < halfScreen)
-                h = -1;
-            else
-                h = 1;
+            h = inputPos.x < halfScreen ? -1 : 1;
         }
 
         if ((isTouchRight && h == 1) || (isTouchLeft && h == -1)) h = 0;
-        if ((isTouchTop && v == 1) || (isTouchBottom && v == -1)) v = 0;
 
-        Vector3 nextPos = new Vector3(h, 0, v) * speed * Time.deltaTime;
-        transform.position += nextPos;
+        inputDirection = new Vector3(h, 0, 0f).normalized;
+    }
+
+    void Move()
+    {
+        if (!isDashing && inputDirection.sqrMagnitude > 0f)
+        {
+            Vector3 move = inputDirection * speed * Time.fixedDeltaTime;
+            transform.position += new Vector3(move.x, 0f, 0f);
+        }
+    }
+
+    void LockPosition()
+    {
+        Vector3 pos = transform.position;
+        pos.y = fixedY;
+        pos.z = fixedZ;
+        transform.position = pos;
+    }
+
+    void CheckAndPreventWallOverlap()
+    {
+        float buffer = 0.05f;
+        Vector3 pos = transform.position;
+
+        Collider[] overlaps = Physics.OverlapBox(
+            pos,
+            new Vector3(0.5f, 1f, 0.5f),
+            Quaternion.identity,
+            LayerMask.GetMask("Border")
+        );
+
+        foreach (Collider col in overlaps)
+        {
+            Vector3 dir = pos - col.ClosestPoint(pos);
+            dir.y = 0;
+            dir.z = 0;
+
+            if (dir.sqrMagnitude > 0.0001f)
+                transform.position += dir.normalized * buffer;
+        }
     }
 
     void DetectDashInput()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-            {
-                return;
-            }
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
             Vector3 inputPos = Input.mousePosition;
             float halfScreen = Screen.width / 2f;
 
             if (inputPos.x < halfScreen)
             {
-                // ¿ŞÂÊ Å¬¸¯
                 if (Time.time - lastClickTimeLeft < doubleClickTime)
                 {
                     Dash(Vector3.left);
@@ -152,7 +168,6 @@ public class Player : MonoBehaviour
             }
             else
             {
-                // ¿À¸¥ÂÊ Å¬¸¯
                 if (Time.time - lastClickTimeRight < doubleClickTime)
                 {
                     Dash(Vector3.right);
@@ -170,21 +185,17 @@ public class Player : MonoBehaviour
     {
         if (isDashing) return;
 
-        // ´ë½Ã °Å¸® + ¿©À¯ °Å¸®¸¸Å­ Ray¸¦ ½÷¼­ º®ÀÌ ÀÖ´ÂÁö È®ÀÎ
         float dashCheckDistance = dashDistance + 0.1f;
         Ray ray = new Ray(transform.position, direction);
 
-        // "Border" ·¹ÀÌ¾î¸¸ °Ë»ç
         if (Physics.Raycast(ray, dashCheckDistance, LayerMask.GetMask("Border")))
-        {
-            // º®ÀÌ ÀÖÀ¸¹Ç·Î ´ë½Ã Ãë¼Ò
             return;
-        }
 
-        // ¹®Á¦ ¾øÀ¸¸é ´ë½Ã
         isDashing = true;
         transform.position += direction * dashDistance;
         Invoke(nameof(ResetDash), 0.2f);
+
+        CheckAndPreventWallOverlap();
     }
 
     void ResetDash()
@@ -192,12 +203,31 @@ public class Player : MonoBehaviour
         isDashing = false;
     }
 
-    void HandleWaterAttack()
+    IEnumerator AutoFireWater()
     {
-        if (Input.GetKeyDown(KeyCode.Space)) // Space Å° ÀÔ·Â (º¯°æ °¡´É)
+        while (true)
         {
+            yield return new WaitForSeconds(waterDuration);
             StartCoroutine(FireWaterParticle());
         }
+    }
+
+    IEnumerator FireWaterParticle()
+    {
+        Vector3 spawnPos = transform.position + Vector3.forward * 2.25f;
+        Quaternion rotation = Quaternion.LookRotation(Vector3.forward);
+        GameObject particle = Instantiate(waterParticlePrefab, spawnPos, rotation);
+
+        ParticleSystem ps = particle.GetComponent<ParticleSystem>();
+        if (ps != null)
+        {
+            var main = ps.main;
+            main.loop = false;
+        }
+
+        AudioManager.Instance.PlayAttackSound();
+        Destroy(particle, waterDuration);
+        yield return null;
     }
 
     void Reload()
@@ -207,31 +237,20 @@ public class Player : MonoBehaviour
 
     public void UseSkillAttack()
     {
-        // ÇÃ·¹ÀÌ¾î Àü¹æ ¹üÀ§¿¡ ÀÖ´Â ¸ğµç Àû¿¡°Ô µ¥¹ÌÁö
-        Vector3 skillCenter = transform.position + transform.forward * (skillRange / 2f);
+        Vector3 skillCenter = transform.position + Vector3.forward * (skillRange / 2f);
 
-        // ½ºÅ³ ÀÌÆåÆ® »ı¼º (¼±ÅÃ»çÇ×)
-        /* if (skillEffectPrefab != null)
-        {
-            GameObject effect = Instantiate(skillEffectPrefab, skillCenter, transform.rotation);
-            Destroy(effect, 2f); // 2ÃÊ ÈÄ ÀÌÆåÆ® »èÁ¦
-        }*/
-
-        // ½ºÅ³ ¹üÀ§ ³»ÀÇ ¸ğµç Àû Å½Áö
         Collider[] enemiesInRange = Physics.OverlapBox(
             skillCenter,
             new Vector3(skillWidth / 2f, 2f, skillRange / 2f),
-            transform.rotation,
-            LayerMask.GetMask("Enemy") // Enemy ·¹ÀÌ¾î¿¡ ÀÖ´Â ¿ÀºêÁ§Æ®¸¸ Å½Áö
+            Quaternion.identity,
+            LayerMask.GetMask("Enemy")
         );
 
-        // Å½ÁöµÈ Àûµé¿¡°Ô µ¥¹ÌÁö Àû¿ë
         foreach (Collider enemyCollider in enemiesInRange)
         {
             Enemy enemy = enemyCollider.GetComponent<Enemy>();
             if (enemy != null)
             {
-                // Enemy Å¬·¡½ºÀÇ OnHit ¸Ş¼­µå¸¦ È£ÃâÇÏ±â À§ÇØ ¸®ÇÃ·º¼Ç »ç¿ë
                 enemy.GetType().GetMethod("OnHit",
                     System.Reflection.BindingFlags.NonPublic |
                     System.Reflection.BindingFlags.Instance)
@@ -239,145 +258,85 @@ public class Player : MonoBehaviour
             }
         }
 
-        // ½ºÅ³ »ç¿ë »ç¿îµå Àç»ı (¼±ÅÃ»çÇ×)
-       // AudioManager.Instance.PlayAttackSound(); // ¶Ç´Â º°µµÀÇ ½ºÅ³ »ç¿îµå
-
-        Debug.Log($"½ºÅ³ °ø°İ! {enemiesInRange.Length}¸íÀÇ Àû¿¡°Ô {skillDamage} µ¥¹ÌÁö!");
+        Debug.Log($"ìŠ¤í‚¬ ê³µê²©! {enemiesInRange.Length}ëª…ì˜ ì ì—ê²Œ {skillDamage} ë°ë¯¸ì§€!");
     }
 
-    IEnumerator DieAfterDelay()
+    private void OnTriggerEnter(Collider other) => HandleCollisionOrTrigger(other);
+
+    private void OnTriggerExit(Collider other)
     {
-        yield return new WaitForSeconds(hitEffectDuration); // ¸ÓÆ¼¸®¾ó È¿°ú º¼ ½Ã°£
-
-        SetMaterial(defaultMaterial); // º¹±¸
-        gameManager.GameOver();
-        gameObject.SetActive(false);
-    }
-
-    IEnumerator RespawnAfterHit()
-    {
-        yield return new WaitForSeconds(hitEffectDuration); // ÇÇ°İ ¿¬Ãâ
-
-        SetMaterial(defaultMaterial); // º¹±¸
-        gameManager.RespawnPlayer();
-        gameObject.SetActive(false);
-    }
-
-    private void OnTriggerEnter(Collider collision)
-    {
-        if (collision.gameObject.CompareTag("Border"))
+        if (other.CompareTag("Border"))
         {
-            switch (collision.gameObject.name)
+            switch (other.name)
             {
-                case "Top": isTouchTop = true; break;
-                case "Bottom": isTouchBottom = true; break;
-                case "Right":
-                    leftTouchCount++;
-                    isTouchRight = true;
-                    break;
-                case "Left":
-                    leftTouchCount++;
-                    isTouchLeft = true;
-                    break;
+                case "Right": isTouchRight = false; break;
+                case "Left": isTouchLeft = false; break;
             }
         }
-        else if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("FireArea"))
+    }
+
+    private void OnCollisionEnter(Collision collision) => HandleCollisionOrTrigger(collision.collider);
+
+    private void HandleCollisionOrTrigger(Collider other)
+    {
+        if (other.CompareTag("Border"))
+        {
+            switch (other.name)
+            {
+                case "Right": isTouchRight = true; break;
+                case "Left": isTouchLeft = true; break;
+            }
+        }
+        else if (other.CompareTag("Enemy") || other.CompareTag("FireArea"))
         {
             if (isHit) return;
 
             isHit = true;
             AudioManager.Instance.PlayerHitSound();
-            TriggerHitEffect(); // »¡°£»öÀ¸·Î º¯°æ
+            TriggerHitEffect();
 
             life--;
             gameManager.UpdateLifeIcon(life);
 
             if (life == 0)
-            {
-                StartCoroutine(DieAfterDelay()); // Àá±ñ ´ë±â ÈÄ Á×À½ Ã³¸®
-            }
+                StartCoroutine(DieAfterDelay());
             else
-            {
                 StartCoroutine(RespawnAfterHit());
-            }
 
-            Destroy(collision.gameObject);
+            if (other.CompareTag("Enemy"))
+                Destroy(other.gameObject);
         }
-        else if (collision.gameObject.CompareTag("FireArea")) // ºÒÀåÆÇ Ã³¸® Ãß°¡
+        else if (other.CompareTag("Item"))
         {
-            if (isHit)
-            {
-                return;
-            }
-            isHit = true;
-            life--;
-            gameManager.UpdateLifeIcon(life);
-
-            if (life == 0)
-            {
-                gameManager.GameOver();
-            }
-            else
-            {
-                gameManager.RespawnPlayer();
-            }
-            gameObject.SetActive(false);
-            // ºÒÀåÆÇÀº ÆÄ±«ÇÏÁö ¾ÊÀ½ (½Ã°£ÀÌ Áö³ª¸é ÀÚµ¿À¸·Î »ç¶óÁü)
-        }
-        else if (collision.gameObject.CompareTag("Item"))
-        {
-            Debug.Log("ÇÃ·¹ÀÌ¾î°¡ ¾ÆÀÌÅÛÀ» È¹µæÇß½À´Ï´Ù!");
-            Item item = collision.gameObject.GetComponent<Item>();
+            Debug.Log("í”Œë ˆì´ì–´ê°€ ì•„ì´í…œì„ íšë“í–ˆìŠµë‹ˆë‹¤!");
+            Item item = other.GetComponent<Item>();
             if (item != null)
             {
                 item.UseItem(this);
                 ChangeMaterialTemporarily();
-                Destroy(collision.gameObject);
             }
+
+            Destroy(other.gameObject);
         }
     }
 
-    private void OnTriggerExit(Collider collision)
-    {
-        if (collision.gameObject.CompareTag("Border"))
-        {
-            switch (collision.gameObject.name)
-            {
-                case "Top": isTouchTop = false; break;
-                case "Bottom": isTouchBottom = false; break;
-                case "Right":
-                    leftTouchCount--;
-                    if (leftTouchCount <= 0) isTouchRight = false;
-                    break;
-                case "Left":
-                    leftTouchCount--;
-                    if (leftTouchCount <= 0) isTouchLeft = false;
-                    break;
-            }
-        }
-    }
     IEnumerator FlashHitMaterial()
     {
         SetMaterial(hitMaterial);
         currentMaterialState = MaterialState.Hit;
-
         yield return new WaitForSeconds(hitEffectDuration);
-
         if (currentMaterialState == MaterialState.Hit)
         {
             SetMaterial(defaultMaterial);
             currentMaterialState = MaterialState.Default;
         }
-
         materialCoroutine = null;
     }
 
     void SetMaterial(Material mat)
     {
         if (playerRenderer != null && mat != null)
-        {
             playerRenderer.material = mat;
-        }
     }
 
     void ChangeMaterialTemporarily()
@@ -387,7 +346,6 @@ public class Player : MonoBehaviour
 
         SetMaterial(buffMaterial);
         currentMaterialState = MaterialState.Buff;
-
         Invoke(nameof(ReturnToDefaultMaterial), materialChangeDuration);
     }
 
@@ -408,14 +366,29 @@ public class Player : MonoBehaviour
         materialCoroutine = StartCoroutine(FlashHitMaterial());
     }
 
+    IEnumerator DieAfterDelay()
+    {
+        yield return new WaitForSeconds(hitEffectDuration);
+        SetMaterial(defaultMaterial);
+        gameManager.GameOver();
+        gameObject.SetActive(false);
+    }
+
+    IEnumerator RespawnAfterHit()
+    {
+        yield return new WaitForSeconds(hitEffectDuration);
+        SetMaterial(defaultMaterial);
+        gameManager.RespawnPlayer();
+        gameObject.SetActive(false);
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // ½ºÅ³ ¹üÀ§ ½Ã°¢È­
         Gizmos.color = Color.blue;
-        Vector3 skillCenter = transform.position + transform.forward * (skillRange / 2f);
+        Vector3 skillCenter = transform.position + Vector3.forward * (skillRange / 2f);
         Gizmos.DrawWireCube(skillCenter, new Vector3(skillWidth, 4f, skillRange));
     }
 }

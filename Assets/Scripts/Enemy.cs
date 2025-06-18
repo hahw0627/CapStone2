@@ -19,7 +19,8 @@ public class Enemy : MonoBehaviour
     protected Renderer objRenderer;
     private Rigidbody rb;
 
-    private Vector3 moveDirection = Vector3.back; // 기본값
+    private Vector3 moveDirection = Vector3.back;
+    private bool isDead = false;
 
     public void SetMoveDirection(Vector3 dir)
     {
@@ -31,15 +32,15 @@ public class Enemy : MonoBehaviour
         objRenderer = GetComponent<Renderer>();
         rb = GetComponent<Rigidbody>();
 
-        // isKinematic을 true로 설정해 파티클 충돌 감지 가능하게 만듦
         if (rb != null)
         {
             rb.isKinematic = true;
         }
     }
+
     void FixedUpdate()
     {
-        if (rb != null)
+        if (rb != null && !isDead)
         {
             Vector3 movement = moveDirection * speed * Time.fixedDeltaTime;
             rb.MovePosition(rb.position + movement);
@@ -48,24 +49,32 @@ public class Enemy : MonoBehaviour
 
     protected virtual void OnHit(int dmg)
     {
+        if (isDead) return;
         health -= dmg;
         objRenderer.material = materials[1];
         Invoke("ReturnMaterial", 0.1f);
 
         if (health <= 0)
         {
-            PlayDeathEffect();
-            DropItem();
-
-            GameManager gameManager = Object.FindFirstObjectByType<GameManager>();
-            if (gameManager != null)
-            {
-                gameManager.AddScore(enemyScore);
-            }
-
-            AudioManager.Instance.MonsterDeadSound();
-            Destroy(gameObject);
+            Die();
         }
+    }
+
+    void Die()
+    {
+        isDead = true;
+
+        PlayDeathEffect();
+        DropItem();
+
+        GameManager gameManager = Object.FindFirstObjectByType<GameManager>();
+        if (gameManager != null)
+        {
+            gameManager.AddScore(enemyScore);
+        }
+
+        AudioManager.Instance.MonsterDeadSound();
+        Destroy(gameObject);
     }
 
     void PlayDeathEffect()
@@ -89,18 +98,23 @@ public class Enemy : MonoBehaviour
 
     void ReturnMaterial()
     {
-        objRenderer.material = materials[0];
+        if (!isDead)
+        {
+            objRenderer.material = materials[0];
+        }
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("BorderBullet"))
+        if (isDead) return;
+
+        if (other.CompareTag("BorderBullet"))
         {
-            Destroy(gameObject);
+            Die();
         }
-        else if (other.gameObject.CompareTag("PlayerBullet"))
+        else if (other.CompareTag("PlayerBullet"))
         {
-            Bullet bullet = other.gameObject.GetComponent<Bullet>();
+            Bullet bullet = other.GetComponent<Bullet>();
             if (bullet != null)
             {
                 OnHit(bullet.dmg);

@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
 
     void RespawnPlayerExe()
     {
-        player.transform.position = new Vector3(0, 2, -16.2f);
+        player.transform.position = new Vector3(0, 1.52f, -16.2f);
         player.SetActive(true);
         AudioManager.Instance.PlayerRevivalSound();
         Player playerLogic = player.GetComponent<Player>();

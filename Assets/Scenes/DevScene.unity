@@ -7394,6 +7394,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: speed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
       propertyPath: skillRange
       value: 40
       objectReference: {fileID: 0}
@@ -7424,6 +7428,14 @@ PrefabInstance:
     - target: {fileID: 309251137988082922, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
       propertyPath: materialChangeDuration
       value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2701977007671718900, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2701977007671718900, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5672716061344801442, guid: 5eb9795589e277d40b7a6aaff9e8b007, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7966,9 +7978,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1257414586967661309, guid: 97fcd337ee789ba4690d9a25c8d0f7ce, type: 3}
+      propertyPath: m_IsKinematic
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 259280303974044343, guid: 97fcd337ee789ba4690d9a25c8d0f7ce, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1996423065280746383, guid: 97fcd337ee789ba4690d9a25c8d0f7ce, type: 3}
       propertyPath: m_Name
       value: Tile
+      objectReference: {fileID: 0}
+    - target: {fileID: 1996423065280746383, guid: 97fcd337ee789ba4690d9a25c8d0f7ce, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 2786046621724859820, guid: 97fcd337ee789ba4690d9a25c8d0f7ce, type: 3}
+      propertyPath: m_TagString
+      value: Border
       objectReference: {fileID: 0}
     - target: {fileID: 2917892677774702981, guid: 97fcd337ee789ba4690d9a25c8d0f7ce, type: 3}
       propertyPath: m_Mesh

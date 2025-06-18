@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 7818770976773650473}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -2.72}
+  m_LocalPosition: {x: 0, y: 2, z: -2.72}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -111,11 +111,11 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &309251137988082922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,9 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77c3729361273364cb1512cd486eef30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
-  isTouchTop: 0
-  isTouchBottom: 0
+  speed: 50
   isTouchRight: 0
   isTouchLeft: 0
   life: 3
@@ -138,8 +136,6 @@ MonoBehaviour:
   maxShotDelay: 0.5
   curShotDelay: 0
   gameManager: {fileID: 0}
-  bulletObj: {fileID: 3583071024279496520, guid: d075954c823633540aa630cec677288c, type: 3}
-  bulletForce: 10
   detectionRadius: 0
   isHit: 0
   dashDistance: 2
@@ -147,10 +143,13 @@ MonoBehaviour:
   skillRange: 10
   skillWidth: 8
   skillDamage: 5
+  waterParticlePrefab: {fileID: 0}
+  firePoint: {fileID: 0}
+  waterDuration: 0.5
   defaultMaterial: {fileID: 0}
   buffMaterial: {fileID: 2100000, guid: 3541ab1bcff79c04a909c93f2e37a087, type: 2}
-  materialChangeDuration: 0.1
   hitMaterial: {fileID: 2100000, guid: fb4fa0ca84be7014f9f13118fc3654fa, type: 2}
+  materialChangeDuration: 0.1
   hitEffectDuration: 0.2
 --- !u!136 &160194603946114070
 CapsuleCollider:
